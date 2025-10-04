@@ -1,0 +1,27 @@
+def quick_sort(arr):
+    """
+    Implementa el Quick Sort de forma recursiva.
+    """
+    if len(arr) <= 1:
+        return arr
+        
+    # Selección del pivote (tomamos el primer elemento como pivote simple)
+    pivote = arr[0]
+    
+    # Partición:
+    # 1. Elementos menores que el pivote
+    menores = [x for x in arr[1:] if x <= pivote]
+    # 2. Elementos mayores que el pivote
+    mayores = [x for x in arr[1:] if x > pivote]
+    
+    # Caso recursivo: se ordena y se combina
+    return quick_sort(menores) + [pivote] + quick_sort(mayores)
+
+# Ejemplo de uso
+lista_desordenada = [10, 7, 8, 9, 1, 5]
+lista_ordenada = quick_sort(lista_desordenada)
+
+print(f"Lista desordenada: {lista_desordenada}")
+print(f"Lista ordenada (Quick Sort): {lista_ordenada}")
+
+# T(n) = 2T(n/2) + O(n) (Caso Promedio)
