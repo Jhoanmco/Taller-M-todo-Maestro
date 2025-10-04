@@ -2,18 +2,11 @@ import sqlite3
 import pandas as pd
 import sys
 
-# ----------------------------------------------------------------------
-# 1. AJUSTES DE PANDAS PARA MOSTRAR LA TABLA COMPLETA
-# ----------------------------------------------------------------------
-# Configuramos Pandas para que no trunque filas ni columnas, y que el ancho sea grande.
-pd.set_option('display.max_rows', None)        # Mostrar todas las filas
-pd.set_option('display.max_columns', None)     # Mostrar todas las columnas
-pd.set_option('display.width', 1000)           # Aumentar el ancho de la consola
-pd.set_option('display.max_colwidth', None)    # No truncar el contenido de las celdas
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', 1000)
+pd.set_option('display.max_colwidth', None)
 
-# ----------------------------------------------------------------------
-# 2. FUNCIÓN DE CONEXIÓN Y CARGA DE DATOS (Sin cambios en la lógica SQL)
-# ----------------------------------------------------------------------
 def cargar_datos_desde_sql(db_name="taller_db.sqlite", sql_file="personas_desordenadas.sql"):
     conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
@@ -21,8 +14,8 @@ def cargar_datos_desde_sql(db_name="taller_db.sqlite", sql_file="personas_desord
     
     with open(sql_file, 'r', encoding='utf-8') as f:
         sql_script = f.read()
-
-    # Usar INSERT OR IGNORE INTO para saltar IDs duplicados (Solución final para la ejecución)
+        
+    #hay algunos id duplicados
     sql_script_ignorar = sql_script.replace("INSERT INTO", "INSERT OR IGNORE INTO")
 
     cursor.executescript(sql_script_ignorar) 
@@ -34,10 +27,8 @@ def cargar_datos_desde_sql(db_name="taller_db.sqlite", sql_file="personas_desord
     
     conn.close()
     return registros
-
-# ----------------------------------------------------------------------
-# 3. ALGORITMO DE BÚSQUEDA RECURSIVA EXHAUSTIVA [T(n) = 2T(n/2) + O(n)]
-# ----------------------------------------------------------------------
+    
+#ALGORITMO DE BÚSQUEDA RECURSIVA EXHAUSTIVA [T(n) = 2T(n/2) + O(n)]
 def busqueda_recursiva_exhaustiva(registros, condicion):
     """Implementa la recurrencia T(n) = 2T(n/2) + O(n)."""
     n = len(registros)
@@ -56,10 +47,6 @@ def busqueda_recursiva_exhaustiva(registros, condicion):
 def condicion_nacidos_post_1990(registro):
     return registro['fecha_nacimiento'] > '1990-01-01'
 
-# ----------------------------------------------------------------------
-# 4. EJECUCIÓN DEL PROGRAMA
-# ----------------------------------------------------------------------
-
 print("1. Cargando datos desde el archivo 'personas_desordenadas.sql'...")
 try:
     DATOS_PERSONAS = cargar_datos_desde_sql(sql_file="personas_desordenadas.sql")
@@ -68,21 +55,18 @@ try:
     print("\n2. Ejecutando Búsqueda Recursiva Exhaustiva [O(n log n)]...")
     resultados_finales = busqueda_recursiva_exhaustiva(DATOS_PERSONAS, condicion_nacidos_post_1990)
     
-    # Mostrar TODOS los resultados encontrados
-    print("\n--- Resultados de la Búsqueda (TODOS los registros encontrados) ---")
+    print("\nResultados de la Búsqueda (TODOS los registros encontrados)")
     if resultados_finales:
         df = pd.DataFrame(resultados_finales)
         
-        # **CAMBIO CLAVE:** Usar to_string() con max_rows ajustado al tamaño exacto de los resultados
         print(df[['id', 'nombre', 'fecha_nacimiento']].to_string(index=False, max_rows=len(df)))
         
         print(f"\nTotal de personas nacidas después de 1990: {len(resultados_finales)}")
     else:
         print("No se encontraron resultados que cumplan la condición.")
 
-    print("\n-----------------------------------------------------------------")
     print("Análisis de Complejidad (Método Maestro): T(n) = Θ(n log n)")
-    print("-----------------------------------------------------------------")
 
 except Exception as e:
+
     print(f"\n[ERROR NO MANEJADO]: Ocurrió un error inesperado. Detalles: {e}")
